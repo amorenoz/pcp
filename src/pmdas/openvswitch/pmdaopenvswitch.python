@@ -37,7 +37,7 @@ class OpenvswitchPMDA(PMDA):
     def __init__(self, name, domain):
         """ (Constructor) Initialisation - register metrics, callbacks, drop privileges """
         PMDA.__init__(self, name, domain)
-        self.verbose = False # True for debugging diagnostics
+        self.verbose = True # True for debugging diagnostics
         self.switch_info_json = {}
         self.port_info_json = {}
         self.flow_json = {}
@@ -173,6 +173,32 @@ class OpenvswitchPMDA(PMDA):
             [ 'interface.options',                                                     PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'map: options'], # 31
             [ 'interface.other_config',                                                PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'map: other_config'], # 32
             [ 'interface.statistics',                                                  PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'map: statistics'], # 33
+            [ 'interface.stats.ovs_rx_qos_drops',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'ovs_rx_qos_drops'], # 33[0]
+            [ 'interface.stats.ovs_tx_failure_drops',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'ovs_tx_failure_drops'], # 33[1]
+            [ 'interface.stats.ovs_tx_invalid_hwol_drops',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'ovs_tx_invalid_hwol_drops'], # 33[2]
+            [ 'interface.stats.ovs_tx_mtu_exceeded_drops',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'ovs_tx_mtu_exceeded_drops'], # 33[3]
+            [ 'interface.stats.ovs_tx_qos_drops',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'ovs_tx_qos_drops'], # 33[4]
+            [ 'interface.stats.ovs_tx_retries',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'ovs_tx_retries'], # 33[5]
+            [ 'interface.stats.rx_1024_to_1522_packets',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'rx_1024_to_1522_packets'], # 33[6]
+            [ 'interface.stats.rx_128_to_255_packets',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'rx_128_to_255_packets'], # 33[7]
+            [ 'interface.stats.rx_1523_to_max_packets',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'rx_1523_to_max_packets'], # 33[8]
+            [ 'interface.stats.rx_1_to_64_packets',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'rx_1_to_64_packets'], # 33[9]
+            [ 'interface.stats.rx_256_to_511_packets',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'rx_256_to_511_packets'], # 33[10]
+            [ 'interface.stats.rx_512_to_1023_packets',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'rx_512_to_1023_packets'], # 33[11]
+            [ 'interface.stats.rx_65_to_127_packets',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'rx_65_to_127_packets'], # 33[12]
+            [ 'interface.stats.rx_bytes',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'rx_bytes'], # 33[13]
+            [ 'interface.stats.rx_dropped',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'rx_dropped'], # 33[14]
+            [ 'interface.stats.rx_errors',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'rx_errors'], # 33[15]
+            [ 'interface.stats.rx_packets',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'rx_packets'], # 33[16]
+            [ 'interface.stats.tx_bytes',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'tx_bytes'], # 33[17]
+            [ 'interface.stats.tx_dropped',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'tx_dropped'], # 33[18]
+            [ 'interface.stats.tx_packets',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'tx_packets'], # 33[19]
+            [ 'interface.stats.collisions',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'collisions'], # 33[19]
+            [ 'interface.stats.rx_crc_err',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'rx_crc_err'], # 33[19]
+            [ 'interface.stats.rx_frame_err',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'rx_frame_err'], # 33[19]
+            [ 'interface.stats.rx_missed_errors',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'rx_missed_errors'], # 33[19]
+            [ 'interface.stats.rx_over_err',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'rx_over_err'], # 33[19]
+            [ 'interface.stats.tx_errors',                                      PM_TYPE_U64, PM_SEM_COUNTER, pmUnits(0,0,1,0,0,PM_COUNT_ONE),  'tx_errors'], # 33[19]
             [ 'interface.status',                                                      PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'map: status'], # 34
             [ 'interface.type',                                                        PM_TYPE_STRING, PM_SEM_INSTANT, pmUnits(),  'type'] # 35
         ]
@@ -203,6 +229,20 @@ class OpenvswitchPMDA(PMDA):
 
             # reorganize json a bit
             for idx in range(len(js["data"])):
+                statistics=js["data"][idx][33]
+                #self.debug("stats value {} of type {}".format(str(statistics), type(statistics)))
+                if len(statistics[1]) == 0:
+                    js["data"][idx][33] = None
+                else:
+                    stats={}
+                    for i in statistics[1]:
+                        stats[i[0]]=i[1]
+                #    self.debug("stats value {} of type {}".format(str(stats), type(stats)))
+                    js["data"][idx][33][0] = type(stats)
+                    js["data"][idx][33][1] = stats
+                #self.debug("stats value {} of type {}".format(str(js["data"][idx][33]), type(js["data"][idx][33])))
+                #self.debug("------------------------------")
+
                 self.interface_info_json[str(js["data"][idx][28])] = js["data"][idx]
                 self.interface_names.append(str(js["data"][idx][28]))
 
@@ -499,28 +539,45 @@ class OpenvswitchPMDA(PMDA):
                     if len(value)==0:
                         return [PMDA_FETCH_NOVALUES,0]
                     return [str(self.interface_info_json[interface][item][1]), 1]
-                if item in [6,7,8,9,14,20,21,26,27]:
+                if item in [6,7,8,9,14,20,21,26,27,15,16,17,18]:
                     value = self.interface_info_json[interface][item]
                     if not isinstance(value, int):
                         return [PMDA_FETCH_NOVALUES,0]
                     return [self.interface_info_json[interface][item], 1]
-                if item in [15,16,17,18]:
-                    return [int(self.interface_info_json[interface][item]), 1]
                 if item in [28,29]:
                     value = self.interface_info_json[interface][item+1]
                     if not isinstance(value, int):
                         return [PMDA_FETCH_NOVALUES, 0]
                     return [self.interface_info_json[interface][item+1], 1]
-                if item in [30,31,32,33]:
+                if item in [30,31]:
                     value = self.interface_info_json[interface][item+1][1]
                     if len(value)==0:
                         return [PMDA_FETCH_NOVALUES,0]
                     return [str(self.interface_info_json[interface][item+1][1]), 1]
-                if item == 34:
-                    value = self.interface_info_json[interface][item+1]
+                if item == 32:
+                    return [str(self.interface_info_json[interface][33][1]), 1]
+                if item in range(33,59):
+                    value = self.interface_info_json[interface][33][1]
+                    key = self.interface_metrics[item][4]
+                    if key not in value.keys():
+                        return [PMDA_FETCH_NOVALUES,0]
+                    return [int(self.interface_info_json[interface][33][1][key]),1]
+                    #return [PMDA_FETCH_NOVALUES,0]
+                #if item == 34:
+                #    value = self.interface_info_json[interface][33][1]
+                #    if 'ovs_rx_qos_drops' not in value.keys():
+                #        return [PMDA_FETCH_NOVALUES,0]
+                #    return [int(self.interface_info_json[interface][33][1]['ovs_rx_qos_drops']),1]
+                if item == 59:
+                    value = self.interface_info_json[interface][34][1]
+                    if len(value)==0:
+                        return [PMDA_FETCH_NOVALUES,0]
+                    return [str(self.interface_info_json[interface][34][1]), 1]
+                if item == 60:
+                    value = self.interface_info_json[interface][35]
                     if not isinstance(value, str):
                         return [PMDA_FETCH_NOVALUES, 0]
-                    return [self.interface_info_json[interface][item+1], 1]
+                    return [self.interface_info_json[interface][35], 1]
                 return [PM_ERR_PMID, 0]
 
             except Exception as e:
